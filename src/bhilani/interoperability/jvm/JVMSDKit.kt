@@ -46,7 +46,7 @@ class JVMSDKit {
         init {
             System.loadLibrary("interoperability_wrapper_robusta")
         }
-        // Configured to be resilient to API changes
+
         val jsonParser = Json { ignoreUnknownKeys = true }
     }
 
@@ -55,7 +55,7 @@ class JVMSDKit {
      */
     suspend fun fetchPages(url: String, pageRange: IntRange): List<Result<String>> = coroutineScope {
         pageRange.map { page ->
-            // Natural staggering (50ms - 250ms)
+
             delay(Random.nextLong(50, 251))
             
             async(Dispatchers.IO) {
@@ -81,6 +81,7 @@ suspend fun main() {
         val pageNum = index + 1
         result.onSuccess { res ->
             try {
+
                 // Parse JSON string into FetchResponse object
                 val parsed = JVMSDKit.jsonParser.decodeFromString<FetchResponse>(res)
                 
@@ -93,7 +94,6 @@ suspend fun main() {
                     println("Page $pageNum: Success (Found ${parsed.data.size} items)")
                 }
             } catch (e: Exception) {
-                // Useful for debugging if the Rust bridge returns a raw error string instead of JSON
                 println("Page $pageNum: Success (JSON Parsing Failed: ${e.message})")
             }
         }
