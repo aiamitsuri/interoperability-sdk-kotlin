@@ -14,3 +14,33 @@ Command 2
     java --enable-native-access=ALL-UNNAMED -Djava.library.path=. ^
     -cp "JVMSDKit.jar;libs/*" ^
     bhilani.interoperability.jvm.JVMSDKitKt
+
+Basic Usage
+
+    package bhilani.interoperability.jvm
+    
+    class JVMSDKit {
+    
+        external fun fetchInteroperability(url: String, paramsJson: String): String
+    
+        companion object {
+            init {
+                System.loadLibrary("interoperability_wrapper_robusta")
+            }
+        }
+    
+        fun runDemo() {
+            val url = ""
+            val params = """{"page": "1"}"""
+    
+            println("Kotlin SDK")
+    
+            val response = fetchInteroperability(url, params)
+    
+            println(response)
+        }
+    }
+    
+    fun main() {
+        JVMSDKit().runDemo()
+    }
