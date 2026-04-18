@@ -1,17 +1,19 @@
-# Run SDK
+# BHILANI Interoperability by kantini, chanchali
 
-Command 1
+Run SDK
 
-    kotlinc -Xplugin=libs/kotlin-serialization-compiler-plugin-2.3.20.jar ^
-    -cp "libs/kotlinx-coroutines-core-jvm-1.9.0.jar;libs/kotlinx-serialization-core-jvm-1.9.0.jar;libs/kotlinx-serialization-json-jvm-1.9.0.jar" ^
-    src/bhilani/interoperability/jvm/JVMSDKit.kt ^
-    -include-runtime -d JVMSDKit.jar
+    Command 1
+    
+        kotlinc -Xplugin=libs/kotlin-serialization-compiler-plugin-2.3.20.jar ^
+        -cp "libs/kotlinx-coroutines-core-jvm-1.9.0.jar;libs/kotlinx-serialization-core-jvm-1.9.0.jar;libs/kotlinx-serialization-json-jvm-1.9.0.jar" ^
+        src/bhilani/interoperability/jvm/JVMSDKit.kt ^
+        -include-runtime -d JVMSDKit.jar
 
-Command 2
+    Command 2
 
-    java --enable-native-access=ALL-UNNAMED -Djava.library.path=. ^
-    -cp "JVMSDKit.jar;libs/*" ^
-    bhilani.interoperability.jvm.JVMSDKitKt
+        java --enable-native-access=ALL-UNNAMED -Djava.library.path=. ^
+        -cp "JVMSDKit.jar;libs/*" ^
+        bhilani.interoperability.jvm.JVMSDKitKt
 
 Basic Usage
 
@@ -204,3 +206,5 @@ Second time
 <img width="929" height="439" alt="kotlin2" src="https://github.com/user-attachments/assets/d3cc2811-154c-4f45-b9cc-576fa24f44ca" />
 Third time
 <img width="923" height="441" alt="kotlin3" src="https://github.com/user-attachments/assets/5ff12a68-2e25-44f6-98a4-5955ad612522" />
+
+**@AIAmitSuri, Co-creator/Co-founder (🙏 Mata Shabri 🙏)**
