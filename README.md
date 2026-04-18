@@ -115,93 +115,90 @@ Dynamic Usage
 
 Concurrent Usage
 
-
-package bhilani.interoperability.jvm
-
-import kotlinx.coroutines.*
-import kotlinx.serialization.*
-import kotlinx.serialization.json.*
-import kotlin.random.Random
-
-@Serializable
-data class Pagination(
-    @SerialName("total_pages") val totalPages: Int
-)
-
-@Serializable
-data class SDKItem(
-    val title: String
-)
-
-@Serializable
-data class FetchResponse(
-    val data: List<SDKItem>,
-    val pagination: Pagination
-)
-
-class JVMSDKit {
-    private external fun fetchInteroperability(url: String, paramsJson: String): String
-
-    companion object {
-        init {
-            System.loadLibrary("interoperability_wrapper_robusta")
-        }
-        val jsonParser = Json { ignoreUnknownKeys = true }
-    }
-
-    // Concurrent fetch logic
-    suspend fun fetchPages(url: String, pageRange: IntRange): List<Result<String>> = coroutineScope {
-        pageRange.map { page ->
-            async(Dispatchers.IO) {
-                // Simulate slight network jitter like the Go version
-                delay(Random.nextLong(50, 251))
-                
-                runCatching {
-                    withTimeout(5000L) {
-                        // Crucial fix: using the format that worked in your manual test
-                        fetchInteroperability(url, """{"page": "$page"}""")
-                    }
-                }
-            }
-        }.awaitAll()
-    }
-}
-
-suspend fun main() {
-    val sdk = JVMSDKit()
-    val url = "https://onrender.com"
+    package bhilani.interoperability.jvm
     
-    println("--- Bhilani Interop SDK (Kotlin Concurrency) ---")
-
-    // Concurrent request for pages 1 through 5
-    val results = sdk.fetchPages(url, 1..5)
-
-    results.forEachIndexed { index, result ->
-        val pageNum = index + 1
-
-        result.onSuccess { res ->
-            try {
-                val parsed = JVMSDKit.jsonParser.decodeFromString<FetchResponse>(res)
-                val totalPages = parsed.pagination.totalPages
-
-                if (parsed.data.isEmpty() || pageNum > totalPages) {
-                    println("Page $pageNum: Success (No Data - Server has $totalPages pages)")
-                } else {
-                    println("Page $pageNum: Success")
-                    parsed.data.forEach { item ->
-                        println("  - Title: ${item.title}")
+    import kotlinx.coroutines.*
+    import kotlinx.serialization.*
+    import kotlinx.serialization.json.*
+    import kotlin.random.Random
+    
+    @Serializable
+    data class Pagination(
+        @SerialName("total_pages") val totalPages: Int
+    )
+    
+    @Serializable
+    data class SDKItem(
+        val title: String
+    )
+    
+    @Serializable
+    data class FetchResponse(
+        val data: List<SDKItem>,
+        val pagination: Pagination
+    )
+    
+    class JVMSDKit {
+        private external fun fetchInteroperability(url: String, paramsJson: String): String
+    
+        companion object {
+            init {
+                System.loadLibrary("interoperability_wrapper_robusta")
+            }
+            val jsonParser = Json { ignoreUnknownKeys = true }
+        }
+    
+        // Concurrent fetch logic
+        suspend fun fetchPages(url: String, pageRange: IntRange): List<Result<String>> = coroutineScope {
+            pageRange.map { page ->
+                async(Dispatchers.IO) {
+                    delay(Random.nextLong(50, 251))
+                    
+                    runCatching {
+                        withTimeout(5000L) {
+                            fetchInteroperability(url, """{"page": "$page"}""")
+                        }
                     }
                 }
-            } catch (e: Exception) {
-                println("Page $pageNum: Success (JSON Parsing Failed: ${e.message})")
-            }
-        }
-        
-        result.onFailure { error ->
-            println("Page $pageNum: Failed (${error.message})")
+            }.awaitAll()
         }
     }
-}
+    
+    suspend fun main() {
+        val sdk = JVMSDKit()
+        val url = ""
+        
+        println("--- Bhilani Interop SDK (Kotlin Concurrency) ---")
+    
+        // Concurrent request for pages 1 through 5
+        val results = sdk.fetchPages(url, 1..5)
+    
+        results.forEachIndexed { index, result ->
+            val pageNum = index + 1
+    
+            result.onSuccess { res ->
+                try {
+                    val parsed = JVMSDKit.jsonParser.decodeFromString<FetchResponse>(res)
+                    val totalPages = parsed.pagination.totalPages
+    
+                    if (parsed.data.isEmpty() || pageNum > totalPages) {
+                        println("Page $pageNum: Success (No Data - Server has $totalPages pages)")
+                    } else {
+                        println("Page $pageNum: Success")
+                        parsed.data.forEach { item ->
+                            println("  - Title: ${item.title}")
+                        }
+                    }
+                } catch (e: Exception) {
+                    println("Page $pageNum: Success (JSON Parsing Failed: ${e.message})")
+                }
+            }
+            
+            result.onFailure { error ->
+                println("Page $pageNum: Failed (${error.message})")
+            }
+        }
+    }
 
 <img width="697" height="439" alt="Screenshot (201)" src="https://github.com/user-attachments/assets/d34c297f-96c8-40e7-a5af-e4b1987fbdb5" />
 
