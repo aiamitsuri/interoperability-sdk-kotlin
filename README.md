@@ -1,4 +1,4 @@
-# BHILANI Interop SDK Suite by kantini, chanchali
+Welcome to **BHILANI**, an **Agentic Interop SDK Suite** by **Kantini, Chanchali**
 
 Run SDK
 
@@ -19,6 +19,19 @@ Basic Usage
 
     package bhilani.interoperability.jvm
     
+    import kotlinx.serialization.*
+    import kotlinx.serialization.json.*
+    
+    @Serializable
+    data class FilterParams(
+        val language: String? = null,
+        val integration: String? = null,
+        val crates: List<String>? = null,
+        val developmentkit: List<String>? = null, 
+        val page: String? = null,
+        val ids: List<Int>? = null
+    )
+    
     class JVMSDKit {
     
         external fun fetchInteroperability(url: String, paramsJson: String): String
@@ -30,15 +43,27 @@ Basic Usage
         }
     
         fun runDemo() {
-            val url = ""
-            val params = """{"page": "1"}"""
+    		val url = ""
+    		val pageNumber = 1
     
-            println("Kotlin SDK")
+    		val filter = FilterParams(page = pageNumber.toString())
     
-            val response = fetchInteroperability(url, params)
+    		val response = runCatching {
+    			val paramsJson = Json.encodeToString(filter)
+    			fetchInteroperability(url, paramsJson)
+    		}.fold(
+    			onSuccess = { result ->
+    				println("Kotlin SDK")
+    				result
+    			},
+    			onFailure = { ex ->
+    				"Native Interop Failed: ${ex.message}"
+    			}
+    		)
     
-            println(response)
-        }
+    		println(response)
+    	}
+    
     }
     
     fun main() {
